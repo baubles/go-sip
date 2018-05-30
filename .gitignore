@@ -10,6 +10,9 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+<<<<<<< HEAD
 
 # dep pkg
 vendor
+=======
+>>>>>>> 53307df1169092284238718b41fdce580232e352
