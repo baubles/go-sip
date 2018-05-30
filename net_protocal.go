@@ -20,11 +20,14 @@ func newNetProtocal() *netProtocal {
 
 // Pack sip packet to bytes
 func (proto *netProtocal) Pack(pkt xnet.Packet) []byte {
-	return pkt.Marshal()
+	b := pkt.Marshal()
+	logger.Debug("pack", zap.ByteString("packet", b))
+	return b
 }
 
 // Unpack bytes to sip packet
 func (proto *netProtocal) Unpack(b []byte) (pkt xnet.Packet, n int, err error) {
+	logger.Debug("unpack", zap.ByteString("packet", b))
 	reader := bufio.NewReader(bytes.NewBuffer(b))
 	var headline []byte
 	for {

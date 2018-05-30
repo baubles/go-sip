@@ -17,11 +17,12 @@ func (h *netHandler) Connect(conn xnet.Conn) {
 }
 
 func (h *netHandler) Packet(conn xnet.Conn, pkt xnet.Packet) {
-	logger.Debug("packet", zap.String("raddr", conn.RemoteAddr().String()), zap.ByteString("packet", pkt.Marshal()))
-
+	// logger.Debug("packet", zap.String("raddr", conn.RemoteAddr().String()), zap.ByteString("packet", pkt.Marshal()))
 	if h.handler != nil {
 		switch ins := pkt.(type) {
 		case *Request:
+			ins.RemoteAddr = conn.RemoteAddr()
+			ins.LocalAddr = conn.LocalAddr()
 			h.handler.OnRequest(conn, ins)
 		case *Response:
 			h.handler.OnResponse(conn, ins)

@@ -14,9 +14,9 @@ type Protocal struct {
 
 func NewProtocal() *Protocal {
 	return &Protocal{
-		Name:      "SIP",
-		Version:   "2.0",
-		Transport: "UDP",
+		Name:    "SIP",
+		Version: "2.0",
+		// Transport: "UDP",
 	}
 }
 

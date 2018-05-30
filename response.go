@@ -21,7 +21,16 @@ type Response struct {
 
 func NewResponse() *Response {
 	return &Response{
-		Message: &Message{},
+		Message: NewMessage(),
+	}
+}
+
+func NewResponseWithStatus(status int) *Response {
+	return &Response{
+		StatusCode: status,
+		Protocal:   header.NewProtocal(),
+		Reason:     statusReasons[status],
+		Message:    NewMessage(),
 	}
 }
 

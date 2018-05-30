@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"net"
 
 	"github.com/baubles/go-sip/header"
 )
@@ -15,12 +16,15 @@ type Request struct {
 	Protocal *header.Protocal
 	URI      *header.URI
 
+	LocalAddr  net.Addr
+	RemoteAddr net.Addr
+
 	response *Response
 }
 
 func NewRequest() *Request {
 	return &Request{
-		Message: &Message{},
+		Message: NewMessage(),
 	}
 }
 

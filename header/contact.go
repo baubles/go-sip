@@ -51,12 +51,14 @@ func (c *Contact) WriteTo(w io.Writer) error {
 		return err
 	}
 
-	if _, err := w.Write([]byte{Semicolon}); err != nil {
-		return err
-	}
+	if c.Params.Size() > 0 {
+		if _, err := w.Write([]byte{Semicolon}); err != nil {
+			return err
+		}
 
-	if err := c.Params.WriteTo(w); err != nil {
-		return err
+		if err := c.Params.WriteTo(w); err != nil {
+			return err
+		}
 	}
 	return nil
 }

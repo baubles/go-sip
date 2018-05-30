@@ -34,13 +34,14 @@ func (t *To) WriteTo(w io.Writer) error {
 	if _, err := w.Write([]byte{RightBrack}); err != nil {
 		return err
 	}
+	if t.Params.Size() > 0 {
+		if _, err := w.Write([]byte{Semicolon}); err != nil {
+			return err
+		}
 
-	if _, err := w.Write([]byte{Semicolon}); err != nil {
-		return err
-	}
-
-	if err := t.Params.WriteTo(w); err != nil {
-		return err
+		if err := t.Params.WriteTo(w); err != nil {
+			return err
+		}
 	}
 	return nil
 }

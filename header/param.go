@@ -81,6 +81,7 @@ func NewParams(listSeparator, keyValueSeparator string) *Params {
 	return &Params{
 		ListSeparator:     listSeparator,
 		KeyValueSeparator: keyValueSeparator,
+		values:            map[string]Value{},
 	}
 }
 
@@ -89,6 +90,7 @@ func NewParamsWithQuote(listSeparator, keyValueSeparator, quote string) *Params 
 		ListSeparator:     listSeparator,
 		KeyValueSeparator: keyValueSeparator,
 		Quote:             quote,
+		values:            map[string]Value{},
 	}
 }
 
@@ -102,7 +104,7 @@ func (p *Params) Unmarshal(b []byte) error {
 	for _, part := range parts {
 		splits := bytes.SplitN(part, []byte(p.KeyValueSeparator), 2)
 		if len(splits) == 2 {
-			values[string(splits[0])] = Value(bytes.Trim(splits[1], p.Quote))
+			values[string(bytes.TrimSpace(splits[0]))] = Value(bytes.Trim(bytes.TrimSpace(splits[1]), p.Quote))
 		} else {
 			values[string(splits[0])] = nil
 		}
@@ -151,6 +153,10 @@ func (p *Params) Clone() HeaderValue {
 		ListSeparator:     p.ListSeparator,
 		Quote:             p.Quote,
 	}
+}
+
+func (p *Params) Size() int {
+	return len(p.values)
 }
 
 func (p *Params) Get(name string) (val Value, ok bool) {

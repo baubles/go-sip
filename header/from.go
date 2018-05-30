@@ -41,12 +41,14 @@ func (f *From) WriteTo(w io.Writer) error {
 		return err
 	}
 
-	if _, err := w.Write([]byte{Semicolon}); err != nil {
-		return err
-	}
+	if f.Params.Size() > 0 {
+		if _, err := w.Write([]byte{Semicolon}); err != nil {
+			return err
+		}
 
-	if err := f.Params.WriteTo(w); err != nil {
-		return err
+		if err := f.Params.WriteTo(w); err != nil {
+			return err
+		}
 	}
 	return nil
 }

@@ -43,13 +43,14 @@ func (v *Via) WriteTo(w io.Writer) error {
 	if err := v.SentBy.WriteTo(w); err != nil {
 		return err
 	}
+	if v.Params.Size() > 0 {
+		if _, err := w.Write([]byte{Semicolon}); err != nil {
+			return err
+		}
 
-	if _, err := w.Write([]byte{Semicolon}); err != nil {
-		return err
-	}
-
-	if err := v.Params.WriteTo(w); err != nil {
-		return err
+		if err := v.Params.WriteTo(w); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -97,8 +98,8 @@ func (v *Via) Branch() (branch string, ok bool) {
 	return val.String(), ok
 }
 
-func (v *Via) SetRPort() {
-	v.Params.Set(ParamNameRPort, nil)
+func (v *Via) SetRPort(rport string) {
+	v.Params.Set(ParamNameRPort, Value(rport))
 }
 
 func (v *Via) RPort() (rport int, ok bool) {

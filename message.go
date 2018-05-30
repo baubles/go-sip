@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"strconv"
 
 	"github.com/baubles/go-sip/header"
 )
@@ -14,15 +15,28 @@ type Message struct {
 	Body    []byte
 }
 
+func NewMessage() *Message {
+	return &Message{
+		Headers: map[string]header.HeaderValue{},
+	}
+}
+
 func (msg *Message) Marshal() []byte {
 	sep := []byte{CR, LF}
 	buf := new(bytes.Buffer)
 	for name, val := range msg.Headers {
+		if name == header.NameContentLength {
+			continue
+		}
 		buf.Write([]byte(name))
 		buf.Write([]byte{header.Colon, ' '})
 		val.WriteTo(buf)
 		buf.Write(sep)
 	}
+	buf.Write([]byte(header.NameContentLength))
+	buf.Write([]byte(": "))
+	buf.Write([]byte(strconv.FormatInt(int64(len(msg.Body)), 10)))
+	buf.Write(sep)
 	buf.Write(sep)
 	buf.Write(msg.Body)
 	return buf.Bytes()

@@ -72,6 +72,24 @@ func (wwwauth *WWWAuthenticate) Nonce() (string, bool) {
 	return val.String(), ok
 }
 
+func (wwwauth *WWWAuthenticate) SetAlgorithm(algorithm string) {
+	wwwauth.Params.Set(ParamNameAlgorithm, []byte(algorithm))
+}
+
+func (wwwauth *WWWAuthenticate) Algorithm() (algorithm string, ok bool) {
+	val, ok := wwwauth.Params.Get(ParamNameAlgorithm)
+	return val.String(), ok
+}
+
+func (wwwauth *WWWAuthenticate) SetOpaque(opaque string) {
+	wwwauth.Params.Set(ParamNameOpaque, []byte(opaque))
+}
+
+func (wwwauth *WWWAuthenticate) Opaque() (opaque string, ok bool) {
+	val, ok := wwwauth.Params.Get(ParamNameOpaque)
+	return val.String(), ok
+}
+
 func (wwwauth *WWWAuthenticate) Clone() HeaderValue {
 	return &WWWAuthenticate{
 		Credential: wwwauth.Credential,
