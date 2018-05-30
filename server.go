@@ -41,7 +41,8 @@ func (srv *Server) listen() (err error) {
 	// var nsrv xnet.Server
 	switch srv.Network {
 	case "udp":
-		// nsrv = xnet.NewUDPServer(srv.Network, srv.Addr)
+		// nsrv := xnet.NewUDPServer(srv.Network, srv.Addr)
+
 	default:
 		return fmt.Errorf("network: %s is not support", srv.Network)
 	}

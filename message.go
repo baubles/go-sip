@@ -87,3 +87,123 @@ func (msg *Message) Unmarshal(b []byte) error {
 	msg.Headers = headers
 	return nil
 }
+
+func (msg *Message) To() *header.To {
+	val, ok := msg.Headers[header.NameTo]
+	if ok {
+		return val.(*header.To)
+	}
+	return nil
+}
+
+func (msg *Message) CSeq() *header.CSeq {
+	val, ok := msg.Headers[header.NameCSeq]
+	if ok {
+		return val.(*header.CSeq)
+	}
+	return nil
+}
+
+func (msg *Message) Via() *header.Via {
+	val, ok := msg.Headers[header.NameVia]
+	if ok {
+		return val.(*header.Via)
+	}
+	return nil
+}
+
+func (msg *Message) CallID() *header.CallID {
+	val, ok := msg.Headers[header.NameCallID]
+	if ok {
+		return val.(*header.CallID)
+	}
+	return nil
+}
+
+func (msg *Message) From() *header.From {
+	val, ok := msg.Headers[header.NameFrom]
+	if ok {
+		return val.(*header.From)
+	}
+	return nil
+}
+
+func (msg *Message) MaxForwards() *header.MaxForwards {
+	val, ok := msg.Headers[header.NameMaxForwards]
+	if ok {
+		return val.(*header.MaxForwards)
+	}
+	return nil
+}
+
+func (msg *Message) ContentType() *header.String {
+	val, ok := msg.Headers[header.NameContentType]
+	if ok {
+		return val.(*header.String)
+	}
+	return nil
+}
+
+func (msg *Message) ContentLength() *header.ContentLength {
+	val, ok := msg.Headers[header.NameContentLength]
+	if ok {
+		return val.(*header.ContentLength)
+	}
+	return nil
+}
+
+func (msg *Message) Date() *header.Date {
+	val, ok := msg.Headers[header.NameDate]
+	if ok {
+		return val.(*header.Date)
+	}
+	return nil
+}
+
+func (msg *Message) Authorization() *header.Authorization {
+	val, ok := msg.Headers[header.NameAuthorization]
+	if ok {
+		return val.(*header.Authorization)
+	}
+	return nil
+}
+
+func (msg *Message) WWWAuthenticate() *header.WWWAuthenticate {
+	val, ok := msg.Headers[header.NameWWWAuthenticate]
+	if ok {
+		return val.(*header.WWWAuthenticate)
+	}
+	return nil
+}
+
+func (msg *Message) Contact() *header.Contact {
+	val, ok := msg.Headers[header.NameContact]
+	if ok {
+		return val.(*header.Contact)
+	}
+	return nil
+}
+
+func (msg *Message) Allow() *header.Allow {
+	val, ok := msg.Headers[header.NameAllow]
+	if ok {
+		return val.(*header.Allow)
+	}
+	return nil
+}
+
+func (msg *Message) Accept() *header.Accept {
+	val, ok := msg.Headers[header.NameAccept]
+	if ok {
+		return val.(*header.Accept)
+	}
+	return nil
+}
+
+func (msg *Message) Expires() *header.Expires {
+	val, ok := msg.Headers[header.NameExpires]
+	if ok {
+		return val.(*header.Expires)
+	}
+	return nil
+}
