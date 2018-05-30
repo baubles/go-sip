@@ -34,3 +34,9 @@ func (cl *ContentLength) Unmarshal(b []byte) error {
 	cl.ContentLength = contentlength
 	return nil
 }
+
+func (cl *ContentLength) Clone() HeaderValue {
+	return &ContentLength{
+		ContentLength: cl.ContentLength,
+	}
+}

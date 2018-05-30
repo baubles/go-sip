@@ -39,3 +39,11 @@ func (a *Accept) Unmarshal(b []byte) error {
 	}
 	return nil
 }
+
+func (a *Accept) Clone() HeaderValue {
+	clone := &Accept{
+		Methods: make([]string, len(a.Methods)),
+	}
+	copy(clone.Methods, a.Methods)
+	return clone
+}

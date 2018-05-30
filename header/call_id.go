@@ -28,3 +28,9 @@ func (c *CallID) Unmarshal(b []byte) error {
 	c.ID = string(b)
 	return nil
 }
+
+func (c *CallID) Clone() HeaderValue {
+	return &CallID{
+		ID: c.ID,
+	}
+}

@@ -33,3 +33,9 @@ func (d *Date) Unmarshal(b []byte) error {
 	d.Date = date
 	return nil
 }
+
+func (d *Date) Clone() HeaderValue {
+	return &Date{
+		Date: d.Date,
+	}
+}

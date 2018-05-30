@@ -75,3 +75,12 @@ func (u *URI) Unmarshal(b []byte) (err error) {
 	u.Password = password
 	return nil
 }
+
+func (u *URI) Clone() HeaderValue {
+	return &URI{
+		Scheme:   u.Scheme,
+		User:     u.User,
+		Password: u.Password,
+		HostPort: u.HostPort.Clone().(*HostPort),
+	}
+}

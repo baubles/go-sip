@@ -71,3 +71,10 @@ func (wwwauth *WWWAuthenticate) Nonce() (string, bool) {
 	val, ok := wwwauth.Params.Get(ParamNameNonce)
 	return val.String(), ok
 }
+
+func (wwwauth *WWWAuthenticate) Clone() HeaderValue {
+	return &WWWAuthenticate{
+		Credential: wwwauth.Credential,
+		Params:     wwwauth.Params.Clone().(*Params),
+	}
+}

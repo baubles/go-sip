@@ -96,12 +96,20 @@ func (msg *Message) To() *header.To {
 	return nil
 }
 
+func (msg *Message) SetTo(val *header.To) {
+	msg.Headers[header.NameTo] = val
+}
+
 func (msg *Message) CSeq() *header.CSeq {
 	val, ok := msg.Headers[header.NameCSeq]
 	if ok {
 		return val.(*header.CSeq)
 	}
 	return nil
+}
+
+func (msg *Message) SetCSeq(val *header.CSeq) {
+	msg.Headers[header.NameCSeq] = val
 }
 
 func (msg *Message) Via() *header.Via {
@@ -112,12 +120,20 @@ func (msg *Message) Via() *header.Via {
 	return nil
 }
 
+func (msg *Message) SetVia(val *header.Via) {
+	msg.Headers[header.NameVia] = val
+}
+
 func (msg *Message) CallID() *header.CallID {
 	val, ok := msg.Headers[header.NameCallID]
 	if ok {
 		return val.(*header.CallID)
 	}
 	return nil
+}
+
+func (msg *Message) SetCallID(val *header.CallID) {
+	msg.Headers[header.NameCallID] = val
 }
 
 func (msg *Message) From() *header.From {
@@ -128,12 +144,20 @@ func (msg *Message) From() *header.From {
 	return nil
 }
 
+func (msg *Message) SetFrom(val *header.From) {
+	msg.Headers[header.NameFrom] = val
+}
+
 func (msg *Message) MaxForwards() *header.MaxForwards {
 	val, ok := msg.Headers[header.NameMaxForwards]
 	if ok {
 		return val.(*header.MaxForwards)
 	}
 	return nil
+}
+
+func (msg *Message) SetMaxForwards(val *header.MaxForwards) {
+	msg.Headers[header.NameMaxForwards] = val
 }
 
 func (msg *Message) ContentType() *header.String {
@@ -144,12 +168,20 @@ func (msg *Message) ContentType() *header.String {
 	return nil
 }
 
+func (msg *Message) SetContentType(val *header.String) {
+	msg.Headers[header.NameContentType] = val
+}
+
 func (msg *Message) ContentLength() *header.ContentLength {
 	val, ok := msg.Headers[header.NameContentLength]
 	if ok {
 		return val.(*header.ContentLength)
 	}
 	return nil
+}
+
+func (msg *Message) SetContentLength(val *header.ContentLength) {
+	msg.Headers[header.NameContentLength] = val
 }
 
 func (msg *Message) Date() *header.Date {
@@ -160,12 +192,20 @@ func (msg *Message) Date() *header.Date {
 	return nil
 }
 
+func (msg *Message) SetDate(val *header.Date) {
+	msg.Headers[header.NameDate] = val
+}
+
 func (msg *Message) Authorization() *header.Authorization {
 	val, ok := msg.Headers[header.NameAuthorization]
 	if ok {
 		return val.(*header.Authorization)
 	}
 	return nil
+}
+
+func (msg *Message) SetAuthorization(val *header.Authorization) {
+	msg.Headers[header.NameAuthorization] = val
 }
 
 func (msg *Message) WWWAuthenticate() *header.WWWAuthenticate {
@@ -176,12 +216,20 @@ func (msg *Message) WWWAuthenticate() *header.WWWAuthenticate {
 	return nil
 }
 
+func (msg *Message) SetWWWAuthenticate(val *header.WWWAuthenticate) {
+	msg.Headers[header.NameWWWAuthenticate] = val
+}
+
 func (msg *Message) Contact() *header.Contact {
 	val, ok := msg.Headers[header.NameContact]
 	if ok {
 		return val.(*header.Contact)
 	}
 	return nil
+}
+
+func (msg *Message) SetContact(val *header.Contact) {
+	msg.Headers[header.NameContact] = val
 }
 
 func (msg *Message) Allow() *header.Allow {
@@ -192,6 +240,10 @@ func (msg *Message) Allow() *header.Allow {
 	return nil
 }
 
+func (msg *Message) SetAllow(val *header.Allow) {
+	msg.Headers[header.NameAllow] = val
+}
+
 func (msg *Message) Accept() *header.Accept {
 	val, ok := msg.Headers[header.NameAccept]
 	if ok {
@@ -200,10 +252,18 @@ func (msg *Message) Accept() *header.Accept {
 	return nil
 }
 
+func (msg *Message) SetAccept(val *header.Accept) {
+	msg.Headers[header.NameAccept] = val
+}
+
 func (msg *Message) Expires() *header.Expires {
 	val, ok := msg.Headers[header.NameExpires]
 	if ok {
 		return val.(*header.Expires)
 	}
 	return nil
+}
+
+func (msg *Message) SetExpires(val *header.Expires) {
+	msg.Headers[header.NameExpires] = val
 }

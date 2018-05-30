@@ -59,3 +59,11 @@ func (proto *Protocal) Unmarshal(b []byte) error {
 
 	return nil
 }
+
+func (proto *Protocal) Clone() HeaderValue {
+	return &Protocal{
+		Name:      proto.Name,
+		Version:   proto.Version,
+		Transport: proto.Transport,
+	}
+}

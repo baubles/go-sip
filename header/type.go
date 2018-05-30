@@ -33,6 +33,12 @@ func BoolValue(b bool) Value {
 	return []byte(strconv.FormatBool(b))
 }
 
+func (v Value) Clone() Value {
+	clone := make(Value, len(v))
+	copy(clone, v)
+	return clone
+}
+
 func writeStringsTo(w io.Writer, ss ...string) error {
 	for _, s := range ss {
 		if _, err := w.Write([]byte(s)); err != nil {

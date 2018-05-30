@@ -140,6 +140,19 @@ func (p *Params) Marshal() []byte {
 	return buf.Bytes()
 }
 
+func (p *Params) Clone() HeaderValue {
+	values := map[string]Value{}
+	for k, v := range p.values {
+		values[k] = v.Clone()
+	}
+	return &Params{
+		values:            values,
+		KeyValueSeparator: p.KeyValueSeparator,
+		ListSeparator:     p.ListSeparator,
+		Quote:             p.Quote,
+	}
+}
+
 func (p *Params) Get(name string) (val Value, ok bool) {
 	val, ok = p.values[name]
 	return

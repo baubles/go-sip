@@ -15,7 +15,7 @@ type Request struct {
 	Protocal *header.Protocal
 	URI      *header.URI
 
-	Response *Response
+	response *Response
 }
 
 func NewRequest() *Request {
@@ -87,4 +87,8 @@ func (req *Request) Marshal() []byte {
 	buf.Write([]byte{CR, LF})
 	buf.Write(req.Message.Marshal())
 	return buf.Bytes()
+}
+
+func (req *Request) Response() *Response {
+	return req.response
 }

@@ -75,3 +75,10 @@ func (t *To) Unmarshal(b []byte) error {
 	t.Params = params
 	return nil
 }
+
+func (t *To) Clone() HeaderValue {
+	return &To{
+		URI:    t.URI.Clone().(*URI),
+		Params: t.Params.Clone().(*Params),
+	}
+}

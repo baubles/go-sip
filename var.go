@@ -1,3 +1,7 @@
 package sip
 
-// var Logger :=
+import (
+	"go.uber.org/zap"
+)
+
+var logger, _ = zap.NewDevelopment()

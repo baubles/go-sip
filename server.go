@@ -3,7 +3,7 @@ package sip
 import (
 	"context"
 	"fmt"
-	"net"
+	"sync"
 
 	"github.com/baubles/go-xnet"
 )
@@ -15,20 +15,35 @@ type Server struct {
 
 	Handler Handler // handler to invoke
 
-	nsrv   xnet.Server
-	conns  []net.Conn
-	closed chan struct{}
+	nsrv    xnet.Server
+	mux     sync.Mutex
+	running int
 }
 
 // Shutdown gracefully shuts down the server without interrupting any active connections
 func (srv *Server) Shutdown(ctx context.Context) (err error) {
-	// TODO
-	return nil
+	srv.mux.Lock()
+	if srv.running != 1 {
+		err = fmt.Errorf("is not running")
+	} else {
+		srv.running = 2
+	}
+	srv.mux.Unlock()
+	return srv.nsrv.Shutdown(ctx)
 }
 
 // Close server
 func (srv *Server) Close() (err error) {
-	close(srv.closed)
+	srv.mux.Lock()
+	if srv.running != 1 {
+		err = fmt.Errorf("is not running")
+	} else {
+		srv.running = 2
+	}
+	srv.mux.Unlock()
+	if err != nil {
+		return err
+	}
 	return srv.nsrv.Close()
 }
 
@@ -37,25 +52,31 @@ func (srv *Server) Serve() (err error) {
 	return srv.serve()
 }
 
-func (srv *Server) listen() (err error) {
-	// var nsrv xnet.Server
+func (srv *Server) serve() (err error) {
+	srv.mux.Lock()
+	if srv.running != 0 {
+		err = fmt.Errorf("is running")
+	} else {
+		srv.running = 1
+	}
+	srv.mux.Unlock()
+
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		srv.mux.Lock()
+		srv.running = 0
+		srv.mux.Unlock()
+	}()
+
 	switch srv.Network {
 	case "udp":
-		// nsrv := xnet.NewUDPServer(srv.Network, srv.Addr)
-
+		srv.nsrv = xnet.NewUDPServer(srv.Network, srv.Addr, &netProtocal{}, &netHandler{handler: srv.Handler})
 	default:
 		return fmt.Errorf("network: %s is not support", srv.Network)
 	}
-	return nil
-}
 
-func (srv *Server) serve() (err error) {
-	for {
-		// var conn net.Conn
-		// conn, err = srv.listener.Accept()
-		// if err != nil {
-		// 	return err
-		// }
-	}
-	return
+	return srv.nsrv.Serve()
 }

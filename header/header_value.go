@@ -8,6 +8,7 @@ import (
 type HeaderValue interface {
 	WriteTo(w io.Writer) error
 	Marshal() []byte
+	Clone() HeaderValue
 	Unmarshal(b []byte) error
 }
 
@@ -32,4 +33,10 @@ func (s *String) Marshal() []byte {
 func (s *String) Unmarshal(b []byte) error {
 	s.Value = string(bytes.TrimSpace(b))
 	return nil
+}
+
+func (s *String) Clone() HeaderValue {
+	return &String{
+		Value: s.Value,
+	}
 }

@@ -34,3 +34,9 @@ func (mf *MaxForwards) Unmarshal(b []byte) error {
 	mf.MaxForwards = int(maxForwards)
 	return nil
 }
+
+func (mf *MaxForwards) Clone() HeaderValue {
+	return &MaxForwards{
+		MaxForwards: mf.MaxForwards,
+	}
+}

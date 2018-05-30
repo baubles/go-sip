@@ -24,3 +24,7 @@
 [[constraint]]
   name = "github.com/gortc/sdp"
   version = "0.9.2"
+
+[[constraint]]
+  name = "go.uber.org/zap"
+  version = "1.8.0"

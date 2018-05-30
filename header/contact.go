@@ -18,6 +18,13 @@ func NewContact() *Contact {
 	}
 }
 
+func (c *Contact) Clone() HeaderValue {
+	return &Contact{
+		URI:    c.URI.Clone().(*URI),
+		Params: c.Params.Clone().(*Params),
+	}
+}
+
 func (c *Contact) Tag() (tag string, ok bool) {
 	val, ok := c.Params.Get(ParamNameTag)
 	return val.String(), ok

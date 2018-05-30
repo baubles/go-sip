@@ -17,6 +17,13 @@ func NewAuthorization() *Authorization {
 	}
 }
 
+func (auth *Authorization) Clone() HeaderValue {
+	return &Authorization{
+		Credential: auth.Credential,
+		Params:     auth.Params.Clone().(*Params),
+	}
+}
+
 func (auth *Authorization) Unmarshal(b []byte) error {
 	b = bytes.TrimSpace(b)
 	if len(b) == 0 {

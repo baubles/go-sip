@@ -1,10 +1,31 @@
 package sip
 
 import (
+	"context"
+	"fmt"
+	"net"
 	"testing"
+	"time"
 )
 
-func TestServer(*testing.T) {
+func TestServer(t *testing.T) {
+	srv := &Server{
+		Network: "udp",
+		Addr:    fmt.Sprintf("%s:5060", localIP()),
+	}
+
+	go func() {
+		time.Sleep(10 * time.Minute)
+		err := srv.Shutdown(context.Background())
+		if err != nil {
+			t.Errorf("server shutdown err; %v", err)
+		}
+	}()
+	err := srv.Serve()
+	if err != nil {
+		t.Errorf("server serve err; %v", err)
+	}
+
 	// laddr, err := net.ResolveUDPAddr("udp4", ":5060")
 	// if err != nil {
 	// 	panic(err)
@@ -49,4 +70,19 @@ func TestServer(*testing.T) {
 	// 		fmt.Println(addr, conn.LocalAddr(), n, err)
 	// 	}
 
+}
+
+func localIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, addr := range addrs {
+		if ipAddr, ok := addr.(*net.IPNet); ok && !ipAddr.IP.IsLoopback() {
+			if ipAddr.IP.To4() != nil {
+				return ipAddr.IP.String()
+			}
+		}
+	}
+	return ""
 }

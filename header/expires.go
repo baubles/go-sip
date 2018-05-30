@@ -34,3 +34,9 @@ func (e *Expires) Unmarshal(b []byte) error {
 	e.Expires = expires
 	return nil
 }
+
+func (e *Expires) Clone() HeaderValue {
+	return &Expires{
+		Expires: e.Expires,
+	}
+}

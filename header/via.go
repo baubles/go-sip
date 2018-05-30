@@ -132,3 +132,11 @@ func (v *Via) MAddr() (maddr string, ok bool) {
 	val, ok := v.Params.Get(ParamNameMAddr)
 	return val.String(), ok
 }
+
+func (v *Via) Clone() HeaderValue {
+	return &Via{
+		Protocal: v.Protocal.Clone().(*Protocal),
+		SentBy:   v.SentBy.Clone().(*HostPort),
+		Params:   v.Params.Clone().(*Params),
+	}
+}

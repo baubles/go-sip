@@ -55,3 +55,10 @@ func (hp *HostPort) Unmarshal(b []byte) (err error) {
 
 	return nil
 }
+
+func (hp *HostPort) Clone() HeaderValue {
+	return &HostPort{
+		Host: hp.Host,
+		Port: hp.Port,
+	}
+}

@@ -45,3 +45,10 @@ func (c *CSeq) Unmarshal(b []byte) error {
 	c.Method = method
 	return nil
 }
+
+func (c *CSeq) Clone() HeaderValue {
+	return &CSeq{
+		Seq:    c.Seq,
+		Method: c.Method,
+	}
+}

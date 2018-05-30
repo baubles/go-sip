@@ -2,20 +2,32 @@
 
 
 [[projects]]
-  name = "github.com/gortc/sdp"
+  branch = "master"
+  name = "github.com/baubles/go-xnet"
   packages = ["."]
-  revision = "8c03e00ae01b25f34ab59a5f76067fc0b4da22f4"
-  version = "v0.9.2"
+  revision = "22200f03de522c9eccb06a0f58576250d526f13f"
 
 [[projects]]
-  name = "github.com/pkg/errors"
+  name = "go.uber.org/atomic"
   packages = ["."]
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
+  revision = "1ea20fb1cbb1cc08cbd0d913a96dead89aa18289"
+  version = "v1.3.2"
+
+[[projects]]
+  name = "go.uber.org/multierr"
+  packages = ["."]
+  revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
+  version = "v1.1.0"
+
+[[projects]]
+  name = "go.uber.org/zap"
+  packages = [".","buffer","internal/bufferpool","internal/color","internal/exit","zapcore"]
+  revision = "eeedf312bc6c57391d84767a4cd413f02a917974"
+  version = "v1.8.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f775af6e77563f7ee55bf76bc1b225a594f0416da69b8411a2c509e012e73780"
+  inputs-digest = "3cadfaa17fcb0c09e1528e4850480a6ba79c9ada5042f26ad7bb7341d4413226"
   solver-name = "gps-cdcl"
   solver-version = 1

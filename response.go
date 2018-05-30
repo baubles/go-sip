@@ -16,7 +16,7 @@ type Response struct {
 	StatusCode int
 	Reason     string
 
-	Request *Request
+	request *Request
 }
 
 func NewResponse() *Response {
@@ -85,4 +85,8 @@ func (res *Response) Marshal() []byte {
 	buf.Write([]byte{CR, LF})
 	buf.Write(res.Message.Marshal())
 	return buf.Bytes()
+}
+
+func (res *Response) Request() *Request {
+	return res.request
 }

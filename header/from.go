@@ -81,3 +81,10 @@ func (f *From) Unmarshal(b []byte) error {
 	f.Params = params
 	return nil
 }
+
+func (f *From) Clone() HeaderValue {
+	return &From{
+		URI:    f.URI.Clone().(*URI),
+		Params: f.Params.Clone().(*Params),
+	}
+}
