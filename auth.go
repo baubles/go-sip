@@ -51,11 +51,7 @@ func AuthSrvVerify(req *Request, cred *Cred) (res *Response, ok bool) {
 	buf.WriteString(uri)
 	ha2 := fmt.Sprintf("%x", md5.Sum(buf.Bytes()))
 
-	fmt.Println(string(buf.Bytes()), ha2)
-
 	pass := fmt.Sprintf("%x", md5.Sum([]byte(ha1+":"+nonce+":"+ha2)))
-
-	fmt.Println(pass, response, string(auth.Params.Marshal()))
 
 	if pass != response {
 		return CreateResponseFromRequest(req, 500), false

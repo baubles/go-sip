@@ -48,7 +48,7 @@ func (msg *Message) Unmarshal(b []byte) error {
 	for {
 		line, _, err := reader.ReadLine()
 		if err != nil {
-			return err
+			break
 		}
 		line = bytes.TrimSpace(line)
 		if len(line) == 0 {
