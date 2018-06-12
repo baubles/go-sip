@@ -8,13 +8,6 @@ import (
 	"github.com/baubles/go-sip/header"
 )
 
-// AuthManager auth manager
-// type AuthManager struct {
-// 	Lookup func(realm, acc_name string) (acc *Account)
-
-// 	Verify func(req *Request) bool
-// }
-
 func AuthSrvChallenge(req *Request, realm string) (res *Response) {
 	res = CreateResponseFromRequest(req, 401)
 	wwwauth := header.NewWWWAuthenticate()
@@ -43,7 +36,7 @@ func AuthSrvVerify(req *Request, cred *Cred) (res *Response, ok bool) {
 	buf.WriteString(cred.Data)
 	ha1 := fmt.Sprintf("%x", md5.Sum(buf.Bytes()))
 
-	fmt.Println(string(buf.Bytes()), ha1)
+	// fmt.Println(string(buf.Bytes()), ha1)
 
 	buf = new(bytes.Buffer)
 	buf.WriteString(req.Method)
