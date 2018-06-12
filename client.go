@@ -62,24 +62,32 @@ func (client *Client) Dial() (err error) {
 		client.errch = make(chan error)
 		go func() {
 			client.wg.Add(1)
-			defer client.wg.Done()
 			client.errch <- client.loop()
+			client.wg.Done()
+			client.close(false)
 		}()
 	}
 	return err
 }
 
-func (client *Client) Close() error {
+func (client *Client) Close() (err error) {
+	return client.close(true)
+}
+
+func (client *Client) close(force bool) (err error) {
 	client.mux.Lock()
 	defer client.mux.Unlock()
-	if !client.connected {
-		return fmt.Errorf("client is not connected")
-	} else {
-		err := client.conn.Close()
+	select {
+	case <-client.closed:
+	default:
 		close(client.closed)
+		if force {
+			err = client.conn.Close()
+		}
 		client.wg.Wait()
-		return err
+		client.connected = false
 	}
+	return
 }
 
 func (client *Client) loop() error {
