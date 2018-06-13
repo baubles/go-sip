@@ -52,3 +52,23 @@ func AuthSrvVerify(req *Request, cred *Cred) (res *Response, ok bool) {
 		return CreateResponseFromRequest(req, 200), true
 	}
 }
+
+func GenerateAuthorizationResponse(method, username, realm, password, nonce, uri string) string {
+	buf := new(bytes.Buffer)
+	buf.WriteString(username)
+	buf.WriteString(":")
+	buf.WriteString(realm)
+	buf.WriteString(":")
+	buf.WriteString(password)
+	ha1 := fmt.Sprintf("%x", md5.Sum(buf.Bytes()))
+
+	buf = new(bytes.Buffer)
+	buf.WriteString(method)
+	buf.WriteString(":")
+	buf.WriteString(uri)
+	ha2 := fmt.Sprintf("%x", md5.Sum(buf.Bytes()))
+
+	res := fmt.Sprintf("%x", md5.Sum([]byte(ha1+":"+nonce+":"+ha2)))
+
+	return res
+}

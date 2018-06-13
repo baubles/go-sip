@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/baubles/go-sip/header"
 	"github.com/baubles/go-xnet"
@@ -16,12 +17,13 @@ type Client struct {
 	conn     *net.UDPConn
 	protocal xnet.Protocal
 
-	connected bool
-	mux       sync.Mutex
-	closed    chan bool
-	errch     chan error
-	accept    chan interface{}
-	wg        sync.WaitGroup
+	connected    bool
+	mux          sync.Mutex
+	closed       chan bool
+	errch        chan error
+	accept       chan interface{}
+	wg           sync.WaitGroup
+	transactions sync.Map
 }
 
 var ErrClientClosed = fmt.Errorf("client be closed")
@@ -62,9 +64,15 @@ func (client *Client) Dial() (err error) {
 		client.errch = make(chan error)
 		go func() {
 			client.wg.Add(1)
-			client.errch <- client.loop()
+			client.errch <- client.loopRead()
 			client.wg.Done()
 			client.close(false)
+		}()
+
+		go func() {
+			client.wg.Add(1)
+			defer client.wg.Done()
+			client.runTransactionJanitor()
 		}()
 	}
 	return err
@@ -90,7 +98,7 @@ func (client *Client) close(force bool) (err error) {
 	return
 }
 
-func (client *Client) loop() error {
+func (client *Client) loopRead() error {
 	for {
 		buf := make([]byte, 1600)
 		n, _, err := client.conn.ReadFrom(buf)
@@ -102,8 +110,53 @@ func (client *Client) loop() error {
 			log.Println("unpack packet error:", err)
 		}
 
+		switch ins := pkt.(type) {
+		case *Response:
+			tid := fmt.Sprintf("%s:%d", ins.CallID().ID, ins.CSeq().Seq)
+			val, ok := client.transactions.Load(tid)
+			if ok {
+				trans := val.(*transaction)
+				select {
+				case trans.ch <- ins:
+				default:
+					log.Println("can't accept pkt, will be drop")
+				}
+
+				if ins.StatusCode > 200 {
+					client.transactions.Delete(tid)
+					close(trans.ch)
+				} else {
+					trans.time = time.Now().UnixNano()
+				}
+
+				continue
+			}
+		}
+
 		select {
 		case client.accept <- pkt:
+		default:
+			log.Println("can't accept pkt, will be drop")
+		}
+	}
+}
+
+func (client *Client) runTransactionJanitor() {
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	for {
+		client.transactions.Range(func(key, val interface{}) bool {
+			trans := val.(*transaction)
+			if time.Now().UnixNano()-trans.time > int64(5*time.Second) {
+				client.transactions.Delete(key)
+				close(trans.ch)
+			}
+			return true
+		})
+		select {
+		case <-client.closed:
+			return
+		case <-ticker.C:
 		}
 	}
 }
@@ -125,6 +178,126 @@ func (client *Client) Write(pkt interface{}) error {
 	if !ok {
 		return fmt.Errorf("pkt can't be cast to xnet.Packet")
 	}
-	_, err := client.conn.Write(val.Marshal())
+	_, err := client.conn.Write(client.protocal.Pack(val))
 	return err
+}
+
+func (client *Client) Register() (err error) {
+	ch, err := client.Request(MethodRegister, 1, "", nil, nil)
+	if err != nil {
+		return err
+	}
+
+	res, ok := <-ch
+	if !ok {
+		return fmt.Errorf("timeout")
+	}
+
+	if res.StatusCode == 200 {
+		return nil
+	}
+
+	if res.StatusCode != 401 {
+		return fmt.Errorf("register error, with status code %d", res.StatusCode)
+	}
+
+	wwwauth := res.WWWAuthenticate()
+
+	auth := header.NewAuthorization()
+	auth.SetUsername(client.uri.User)
+	realm, _ := wwwauth.Realm()
+	auth.SetRealm(realm)
+	nonce, _ := wwwauth.Nonce()
+	auth.SetNonce(nonce)
+	auth.SetAlgorithm("MD5")
+	auth.Credential = "Digest"
+	uri := string(client.uri.Marshal())
+	auth.SetURI(uri)
+	respsonse := GenerateAuthorizationResponse(MethodRegister, client.uri.User, realm, client.password, nonce, uri)
+	auth.SetResponse(respsonse)
+
+	headers := map[string]header.HeaderValue{
+		header.NameAuthorization: auth,
+	}
+
+	ch, err = client.Request(MethodRegister, 2, "", nil, headers)
+
+	res, ok = <-ch
+	if !ok {
+		return fmt.Errorf("timeout")
+	}
+
+	if res.StatusCode == 200 {
+		return nil
+	}
+
+	return fmt.Errorf("register error, with status code %d", res.StatusCode)
+}
+
+func (client *Client) Request(method string, seq int64, sipaccount string, body []byte, headers map[string]header.HeaderValue) (res <-chan *Response, err error) {
+	req := NewRequest()
+	req.Method = method
+
+	via := header.NewVia()
+	via.SetRPort("")
+	laddr := client.conn.LocalAddr().(*net.UDPAddr)
+	via.SentBy.Host = laddr.IP.String()
+	via.SentBy.Port = laddr.Port
+	req.SetVia(via)
+
+	from := header.NewFrom()
+	from.URI = client.uri
+	req.SetFrom(from)
+
+	to := header.NewTo()
+	if sipaccount != "" {
+		err = to.URI.Unmarshal([]byte(sipaccount))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		to.URI = client.uri
+	}
+	req.SetTo(to)
+
+	maxforwards := header.NewMaxForwards()
+	maxforwards.MaxForwards = 70
+	req.SetMaxForwards(maxforwards)
+
+	cseq := header.NewCSeq()
+	cseq.Method = method
+	cseq.Seq = seq
+	req.SetCSeq(cseq)
+
+	req.Body = body
+
+	// callid = uuidString()
+	callID := header.NewCallID()
+	callID.ID = uuidString()
+	req.SetCallID(callID)
+
+	for key, val := range headers {
+		req.Headers[key] = val
+	}
+
+	_, err = client.conn.Write(client.protocal.Pack(req))
+	if err != nil {
+		return nil, err
+	}
+	tid := fmt.Sprintf("%s:%d", callID.ID, cseq.Seq)
+	trans := newTransaction()
+	client.transactions.Store(tid, newTransaction())
+	return trans.ch, nil
+}
+
+type transaction struct {
+	time int64
+	ch   chan *Response
+}
+
+func newTransaction() *transaction {
+	return &transaction{
+		time: time.Now().UnixNano(),
+		ch:   make(chan *Response, 5),
+	}
 }

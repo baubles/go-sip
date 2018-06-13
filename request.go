@@ -24,7 +24,8 @@ type Request struct {
 
 func NewRequest() *Request {
 	return &Request{
-		Message: NewMessage(),
+		Message:  NewMessage(),
+		Protocal: header.NewProtocal(),
 	}
 }
 

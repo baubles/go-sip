@@ -123,7 +123,7 @@ func (p *Params) WriteTo(w io.Writer) error {
 				return err
 			}
 		}
-		if v == nil {
+		if v == nil || len(v) == 0 {
 			if err := writeStringsTo(w, k); err != nil {
 				return err
 			}

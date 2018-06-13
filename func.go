@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/baubles/go-sip/header"
+	"github.com/satori/go.uuid"
 )
 
 const letterBytes = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -31,4 +32,9 @@ func CreateResponseFromRequest(req *Request, status int) (res *Response) {
 	res.SetTo(to)
 	res.SetCallID(req.CallID())
 	return res
+}
+
+func uuidString() string {
+	u, _ := uuid.NewV4()
+	return strings.Replace("-", "", u.String(), -1)
 }
