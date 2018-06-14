@@ -37,6 +37,7 @@ func (a *Allow) Unmarshal(b []byte) error {
 	for i, part := range parts {
 		methods[i] = string(bytes.TrimSpace(part))
 	}
+	a.Methods = methods
 	return nil
 }
 

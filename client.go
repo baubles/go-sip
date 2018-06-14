@@ -253,18 +253,24 @@ func (client *Client) Register() (err error) {
 func (client *Client) Request(method string, seq int64, sipaccount string, body []byte, headers map[string]header.HeaderValue) (res <-chan *Response, err error) {
 	req := NewRequest()
 	req.Method = method
-	req.URI = client.uri
 
 	via := header.NewVia()
-	via.SetRPort("")
 	laddr := client.conn.LocalAddr().(*net.UDPAddr)
 	via.SentBy.Host = laddr.IP.String()
 	via.SentBy.Port = laddr.Port
+	via.Protocal.Transport = "UDP"
 	req.SetVia(via)
+	via.SetBranch(uuidString())
+	via.SetRPort("")
 
 	from := header.NewFrom()
 	from.URI = client.uri
+	from.SetTag(uuidString())
 	req.SetFrom(from)
+
+	contact := header.NewContact()
+	contact.URI = client.uri
+	req.SetContact(contact)
 
 	to := header.NewTo()
 	if sipaccount != "" {
@@ -276,6 +282,7 @@ func (client *Client) Request(method string, seq int64, sipaccount string, body 
 		to.URI = client.uri
 	}
 	req.SetTo(to)
+	req.URI = to.URI
 
 	maxforwards := header.NewMaxForwards()
 	maxforwards.MaxForwards = 70
@@ -289,8 +296,9 @@ func (client *Client) Request(method string, seq int64, sipaccount string, body 
 	req.Body = body
 
 	// callid = uuidString()
-	callID := header.NewCallID()
-	callID.ID = uuidString()
+	callID := &header.CallID{
+		ID: uuidString(),
+	}
 	req.SetCallID(callID)
 
 	for key, val := range headers {

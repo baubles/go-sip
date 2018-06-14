@@ -20,7 +20,7 @@ const (
 	NameVia             = "Via"
 	NameCallID          = "Call-ID"
 	NameFrom            = "From"
-	NameMaxForwards     = "MaxForwards"
+	NameMaxForwards     = "Max-Forwards"
 	NameContentType     = "Content-Type"
 	NameContentLength   = "Content-Length"
 	NameDate            = "Date"
