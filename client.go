@@ -183,7 +183,12 @@ func (client *Client) Write(pkt interface{}) error {
 }
 
 func (client *Client) Register() (err error) {
-	ch, err := client.Request(MethodRegister, 1, "", nil, nil)
+	expires := header.NewExpires()
+	expires.Expires = 3600
+
+	ch, err := client.Request(MethodRegister, 1, "", nil, map[string]header.HeaderValue{
+		header.NameExpires: expires,
+	})
 	if err != nil {
 		return err
 	}
@@ -218,6 +223,7 @@ func (client *Client) Register() (err error) {
 
 	headers := map[string]header.HeaderValue{
 		header.NameAuthorization: auth,
+		header.NameExpires:       expires,
 	}
 
 	ch, err = client.Request(MethodRegister, 2, "", nil, headers)
@@ -237,6 +243,7 @@ func (client *Client) Register() (err error) {
 func (client *Client) Request(method string, seq int64, sipaccount string, body []byte, headers map[string]header.HeaderValue) (res <-chan *Response, err error) {
 	req := NewRequest()
 	req.Method = method
+	req.URI = client.uri
 
 	via := header.NewVia()
 	via.SetRPort("")
@@ -286,7 +293,7 @@ func (client *Client) Request(method string, seq int64, sipaccount string, body 
 	}
 	tid := fmt.Sprintf("%s:%d", callID.ID, cseq.Seq)
 	trans := newTransaction()
-	client.transactions.Store(tid, newTransaction())
+	client.transactions.Store(tid, trans)
 	return trans.ch, nil
 }
 

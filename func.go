@@ -36,5 +36,5 @@ func CreateResponseFromRequest(req *Request, status int) (res *Response) {
 
 func uuidString() string {
 	u, _ := uuid.NewV4()
-	return strings.Replace("-", "", u.String(), -1)
+	return strings.Replace(u.String(), "-", "", -1)
 }
