@@ -61,7 +61,7 @@ func (client *Client) Dial() (err error) {
 		client.connected = true
 		client.closed = make(chan bool)
 		client.accept = make(chan interface{})
-		client.errch = make(chan error)
+		client.errch = make(chan error, 1)
 		go func() {
 			client.wg.Add(1)
 			client.errch <- client.loopRead()
@@ -71,8 +71,8 @@ func (client *Client) Dial() (err error) {
 
 		go func() {
 			client.wg.Add(1)
-			defer client.wg.Done()
 			client.runTransactionJanitor()
+			client.wg.Done()
 		}()
 	}
 	return err
@@ -84,30 +84,40 @@ func (client *Client) Close() (err error) {
 
 func (client *Client) close(force bool) (err error) {
 	client.mux.Lock()
-	defer client.mux.Unlock()
 	select {
 	case <-client.closed:
+		client.mux.Unlock()
+		return
 	default:
 		close(client.closed)
-		if force {
-			err = client.conn.Close()
-		}
-		client.wg.Wait()
-		client.connected = false
+		client.mux.Unlock()
 	}
+
+	if force {
+		err = client.conn.Close()
+	}
+	client.transactions.Range(func(key, val interface{}) bool {
+		trans := val.(*transaction)
+		client.transactions.Delete(key)
+		close(trans.ch)
+		return true
+	})
+	client.wg.Wait()
+	client.connected = false
 	return
 }
 
 func (client *Client) loopRead() error {
 	for {
-		buf := make([]byte, 1600)
+		buf := make([]byte, 1500)
 		n, _, err := client.conn.ReadFrom(buf)
+
 		if err != nil {
 			return err
 		}
 		pkt, _, err := client.protocal.Unpack(buf[:n])
 		if err != nil {
-			log.Println("unpack packet error:", err)
+			continue
 		}
 
 		switch ins := pkt.(type) {
@@ -122,7 +132,7 @@ func (client *Client) loopRead() error {
 					log.Println("can't accept pkt, will be drop")
 				}
 
-				if ins.StatusCode > 200 {
+				if ins.StatusCode >= 200 {
 					client.transactions.Delete(tid)
 					close(trans.ch)
 				} else {
@@ -147,7 +157,7 @@ func (client *Client) runTransactionJanitor() {
 	for {
 		client.transactions.Range(func(key, val interface{}) bool {
 			trans := val.(*transaction)
-			if time.Now().UnixNano()-trans.time > int64(5*time.Second) {
+			if time.Now().UnixNano()-trans.time > int64(2*time.Second) {
 				client.transactions.Delete(key)
 				close(trans.ch)
 			}
