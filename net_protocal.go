@@ -4,8 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-
-	"go.uber.org/zap"
+	"log"
 
 	"github.com/baubles/go-xnet"
 )
@@ -21,13 +20,11 @@ func newNetProtocal() *netProtocal {
 // Pack sip packet to bytes
 func (proto *netProtocal) Pack(pkt xnet.Packet) []byte {
 	b := pkt.Marshal()
-	logger.Debug("pack", zap.ByteString("packet", b))
 	return b
 }
 
 // Unpack bytes to sip packet
 func (proto *netProtocal) Unpack(b []byte) (pkt xnet.Packet, n int, err error) {
-	logger.Debug("unpack", zap.ByteString("packet", b))
 	reader := bufio.NewReader(bytes.NewBuffer(b))
 	var headline []byte
 	for {
@@ -39,7 +36,7 @@ func (proto *netProtocal) Unpack(b []byte) (pkt xnet.Packet, n int, err error) {
 			if err == io.EOF {
 				break
 			}
-			logger.Error("unpack read package bytes error", zap.Error(err))
+			log.Println("unpack read package bytes error", err)
 		}
 		line = bytes.TrimSpace(b)
 		if len(line) == 0 {
@@ -56,7 +53,7 @@ func (proto *netProtocal) Unpack(b []byte) (pkt xnet.Packet, n int, err error) {
 	}
 
 	if err := pkt.Unmarshal(b); err != nil {
-		logger.Error("unpack unmarshal pkt err", zap.Error(err))
+		log.Println("unpack unmarshal pkt err", err)
 	}
 
 	return pkt, len(b), nil

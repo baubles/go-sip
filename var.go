@@ -1,11 +1,5 @@
 package sip
 
-import (
-	"go.uber.org/zap"
-)
-
-var logger, _ = zap.NewDevelopment()
-
 var statusReasons = map[int]string{
 	100: "Trying",
 	180: "Ringing",

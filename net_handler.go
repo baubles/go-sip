@@ -1,10 +1,10 @@
 package sip
 
 import (
+	"log"
 	"sync"
 
 	"github.com/baubles/go-xnet"
-	"go.uber.org/zap"
 )
 
 type netHandler struct {
@@ -13,11 +13,10 @@ type netHandler struct {
 }
 
 func (h *netHandler) Connect(conn xnet.Conn) {
-	logger.Debug("connect", zap.String("raddr", conn.RemoteAddr().String()))
+	log.Println("connect raddr:", conn.RemoteAddr())
 }
 
 func (h *netHandler) Packet(conn xnet.Conn, pkt xnet.Packet) {
-	// logger.Debug("packet", zap.String("raddr", conn.RemoteAddr().String()), zap.ByteString("packet", pkt.Marshal()))
 	if h.handler != nil {
 		switch ins := pkt.(type) {
 		case *Request:
@@ -31,7 +30,7 @@ func (h *netHandler) Packet(conn xnet.Conn, pkt xnet.Packet) {
 }
 
 func (h *netHandler) Disconnect(conn xnet.Conn) {
-	logger.Debug("disconnect", zap.String("raddr", conn.RemoteAddr().String()))
+	log.Println("disconnect raddr:", conn.RemoteAddr())
 }
 
 // func (h *netHandler) createResponse(req *Request) {
