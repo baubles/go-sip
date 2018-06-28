@@ -13,6 +13,7 @@ import (
 
 type Client struct {
 	uri      *header.URI
+	tag      string
 	password string
 	conn     *net.UDPConn
 	protocal xnet.Protocal
@@ -38,6 +39,7 @@ func NewClient(sipaccount string, password string) (*Client, error) {
 
 	return &Client{
 		uri:      uri,
+		tag:      uuidString(),
 		password: password,
 		protocal: newNetProtocal(),
 	}, nil
@@ -266,6 +268,7 @@ func (client *Client) Request(method string, seq int64, sipaccount string, body 
 	from := header.NewFrom()
 	from.URI = client.uri
 	from.SetTag(uuidString())
+	from.SetTag(client.tag)
 	req.SetFrom(from)
 
 	contact := header.NewContact()
