@@ -3,7 +3,6 @@ package sip
 import (
 	"bufio"
 	"bytes"
-	"io"
 	"log"
 
 	"github.com/baubles/go-xnet"
@@ -29,14 +28,9 @@ func (proto *netProtocal) Unpack(b []byte) (pkt xnet.Packet, n int, err error) {
 	var headline []byte
 	for {
 		line, _, err := reader.ReadLine()
-		if err == io.EOF {
-			break
-		}
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
 			log.Println("unpack read package bytes error", err)
+			return nil, len(b), err
 		}
 		line = bytes.TrimSpace(b)
 		if len(line) == 0 {
@@ -53,7 +47,8 @@ func (proto *netProtocal) Unpack(b []byte) (pkt xnet.Packet, n int, err error) {
 	}
 
 	if err := pkt.Unmarshal(b); err != nil {
-		log.Println("unpack unmarshal pkt err", err)
+		log.Println("unpack unmarshal pkt err", err, "data:", string(b))
+		return nil, len(b), err
 	}
 
 	return pkt, len(b), nil
