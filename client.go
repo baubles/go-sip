@@ -136,7 +136,7 @@ func (client *Client) loopRead() error {
 
 				if ins.StatusCode >= 200 {
 					client.transactions.Delete(tid)
-					close(trans.ch)
+					// close(trans.ch)
 				} else {
 					trans.time = time.Now().UnixNano()
 				}
