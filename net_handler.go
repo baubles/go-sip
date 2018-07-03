@@ -1,7 +1,6 @@
 package sip
 
 import (
-	"log"
 	"sync"
 
 	"github.com/baubles/go-xnet"
@@ -13,7 +12,7 @@ type netHandler struct {
 }
 
 func (h *netHandler) Connect(conn xnet.Conn) {
-	log.Println("connect raddr:", conn.RemoteAddr())
+	logger.Println("connect raddr:", conn.RemoteAddr())
 }
 
 func (h *netHandler) Packet(conn xnet.Conn, pkt xnet.Packet) {
@@ -30,7 +29,7 @@ func (h *netHandler) Packet(conn xnet.Conn, pkt xnet.Packet) {
 }
 
 func (h *netHandler) Disconnect(conn xnet.Conn) {
-	log.Println("disconnect raddr:", conn.RemoteAddr())
+	logger.Println("disconnect raddr:", conn.RemoteAddr())
 }
 
 // func (h *netHandler) createResponse(req *Request) {

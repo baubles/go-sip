@@ -47,7 +47,7 @@ func (proto *netProtocal) Unpack(b []byte) (pkt xnet.Packet, n int, err error) {
 	}
 
 	if err := pkt.Unmarshal(b); err != nil {
-		log.Println("unpack unmarshal pkt err", err, "data:", string(b))
+		logger.Printf("unpack unmarshal pkt err: %v, data=%s", err, b)
 		return nil, len(b), err
 	}
 

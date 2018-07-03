@@ -1,5 +1,10 @@
 package sip
 
+import (
+	"log"
+	"os"
+)
+
 var statusReasons = map[int]string{
 	100: "Trying",
 	180: "Ringing",
@@ -60,3 +65,5 @@ var statusReasons = map[int]string{
 	702: "Unable to resolve destination server",
 	703: "Error sending message to destination server",
 }
+
+var logger = log.New(os.Stdout, "[sip] ", log.LstdFlags)

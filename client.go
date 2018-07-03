@@ -2,7 +2,6 @@ package sip
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"sync"
 	"time"
@@ -55,7 +54,7 @@ func (client *Client) Dial() (err error) {
 	defer client.mux.Unlock()
 
 	if client.connected {
-		fmt.Errorf("client is connected")
+		return fmt.Errorf("client is connected")
 	}
 
 	client.conn, err = net.DialUDP("udp", nil, raddr)
@@ -131,7 +130,7 @@ func (client *Client) loopRead() error {
 				select {
 				case trans.ch <- ins:
 				default:
-					log.Println("can't accept pkt, will be drop")
+					logger.Printf("transaction can't accept pkt, will be drop.\n%s\n", pkt.Marshal())
 				}
 
 				if ins.StatusCode >= 200 {
@@ -140,15 +139,13 @@ func (client *Client) loopRead() error {
 				} else {
 					trans.time = time.Now().UnixNano()
 				}
-
-				continue
 			}
-		}
-
-		select {
-		case client.accept <- pkt:
 		default:
-			log.Println("can't accept pkt, will be drop")
+			select {
+			case client.accept <- pkt:
+			default:
+				logger.Printf("client can't accept pkt, will be drop.\n%s\n", pkt.Marshal())
+			}
 		}
 	}
 }
@@ -189,6 +186,11 @@ func (client *Client) Write(pkt interface{}) error {
 	val, ok := pkt.(xnet.Packet)
 	if !ok {
 		return fmt.Errorf("pkt can't be cast to xnet.Packet")
+	}
+	client.mux.Lock()
+	defer client.mux.Unlock()
+	if !client.connected {
+		return fmt.Errorf("client not connected")
 	}
 	_, err := client.conn.Write(client.protocal.Pack(val))
 	return err
@@ -239,6 +241,10 @@ func (client *Client) Register() (err error) {
 	}
 
 	ch, err = client.Request(MethodRegister, 2, "", nil, headers)
+
+	if err != nil {
+		return err
+	}
 
 	res, ok = <-ch
 	if !ok {
@@ -308,13 +314,17 @@ func (client *Client) Request(method string, seq int64, sipaccount string, body 
 		req.Headers[key] = val
 	}
 
-	_, err = client.conn.Write(client.protocal.Pack(req))
-	if err != nil {
-		return nil, err
-	}
 	tid := fmt.Sprintf("%s:%d", callID.ID, cseq.Seq)
 	trans := newTransaction()
-	client.transactions.Store(tid, trans)
+	_, loaded := client.transactions.LoadOrStore(tid, trans)
+	if loaded {
+		return nil, fmt.Errorf("call id is exist")
+	}
+	err = client.Write(req)
+	if err != nil {
+		client.transactions.Delete(tid)
+		return nil, err
+	}
 	return trans.ch, nil
 }
 
